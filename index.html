@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CYBERVERSE — Keynote</title>
+    <style>
+      #bootError {
+        position: fixed;
+        inset: 18px;
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 18px 18px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 10, 14, 0.92);
+        color: rgba(255, 255, 255, 0.92);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Helvetica, Arial;
+        line-height: 1.4;
+        z-index: 9999;
+        display: none;
+      }
+      #bootError code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+          monospace;
+        font-size: 0.95em;
+      }
+      #bootError h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        letter-spacing: -0.01em;
+      }
+      #bootError p {
+        margin: 8px 0;
+        color: rgba(255, 255, 255, 0.78);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="bootError" role="status" aria-live="polite">
+      <h2>This page must be run via the dev server</h2>
+      <p>
+        You opened <code>index.html</code> directly (file://), so the Three.js app
+        and styles won’t load.
+      </p>
+      <p>In this folder, run:</p>
+      <p><code>npm.cmd run dev</code></p>
+      <p>Then open the <code>http://localhost:5173</code> URL it prints.</p>
+    </div>
+
+    <div id="app">
+      <canvas id="stage" aria-hidden="true"></canvas>
+
+      <div id="ui" role="application" aria-label="Keynote deck">
+        <div id="chrome">
+          <div id="brand">CYBERVERSE</div>
+          <div id="counter" aria-label="Slide counter">
+            <span id="slideIndex">1</span><span id="slideTotal">/6</span>
+          </div>
+        </div>
+
+        <main id="content">
+          <div id="text" class="fade-in">
+            <h1 id="title"></h1>
+            <p id="subtitle"></p>
+            <ul id="bullets"></ul>
+          </div>
+
+          <div id="media" class="fade-in" aria-label="Media">
+            <video id="video" playsinline controls></video>
+            <img id="image" alt="" />
+          </div>
+        </main>
+
+        <footer id="footer">
+          <div id="hint">Press <kbd>→</kbd> / <kbd>Space</kbd> to advance</div>
+          <a id="cta" href="#" target="_blank" rel="noreferrer noopener">Open link</a>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      if (location.protocol === "file:") {
+        const el = document.getElementById("bootError");
+        if (el) el.style.display = "block";
+      }
+    </script>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
