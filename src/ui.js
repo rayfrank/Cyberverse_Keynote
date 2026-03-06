@@ -11,6 +11,16 @@ const slideIndexEl = document.getElementById("slideIndex");
 const slideTotalEl = document.getElementById("slideTotal");
 const ctaEl = document.getElementById("cta");
 
+function resolveMediaSrc(src) {
+  const value = src ?? "";
+  if (!value) return "";
+  if (/^(https?:)?\/\//i.test(value)) return value;
+  if (/^(data:|blob:)/i.test(value)) return value;
+  if (!value.startsWith("/")) return value;
+  const base = import.meta.env.BASE_URL || "/";
+  return `${base}${value.slice(1)}`;
+}
+
 function applyLayout(slide, index1Based) {
   document.body.classList.toggle("layout-center", slide?.layout === "center");
   const side = slide?.mediaPos === "left" ? "left" : "right";
@@ -75,7 +85,8 @@ function setBullets(lines) {
 function showImage(src, alt) {
   mediaWrapEl.classList.add("show");
   imageEl.dataset.fallbackStep = "0";
-  imageEl.src = src;
+  imageEl.dataset.requestedSrc = src ?? "";
+  imageEl.src = resolveMediaSrc(src);
   imageEl.alt = alt ?? "";
   imageEl.style.display = "block";
   videoEl.style.display = "none";
@@ -83,7 +94,7 @@ function showImage(src, alt) {
 
 function showVideo(src) {
   mediaWrapEl.classList.add("show");
-  videoEl.src = src;
+  videoEl.src = resolveMediaSrc(src);
   videoEl.style.display = "block";
   videoEl.controls = true;
   imageEl.style.display = "none";
@@ -111,19 +122,21 @@ function initImageFallback() {
   imageEl.addEventListener(
     "error",
     () => {
-      const current = imageEl.getAttribute("src") ?? "";
+      const requested = imageEl.dataset.requestedSrc ?? "";
       const step = Number(imageEl.dataset.fallbackStep ?? "0");
       if (step > 2) return;
 
       // Try a couple of sensible fallbacks, then land on a known-good asset.
-      if (step === 0 && /\/assets\/image8\.png(\?|$)/.test(current)) {
+      if (step === 0 && /\/assets\/image8\.png(\?|$)/.test(requested)) {
         imageEl.dataset.fallbackStep = "1";
-        imageEl.src = "/assets/image8.jpg";
+        imageEl.dataset.requestedSrc = "/assets/image8.jpg";
+        imageEl.src = resolveMediaSrc("/assets/image8.jpg");
         return;
       }
 
       imageEl.dataset.fallbackStep = "2";
-      imageEl.src = "/assets/image1.png";
+      imageEl.dataset.requestedSrc = "/assets/image1.png";
+      imageEl.src = resolveMediaSrc("/assets/image1.png");
     },
     { passive: true }
   );
