@@ -9,7 +9,8 @@ export const SLIDES = [
       "Featuring NURU AI - a 3D embodied conversational cybersecurity agent"
     ],
     cta: { label: "GameJolt Demo", href: "https://gamejolt.com/games/CYBERVERSEKE/1032684" },
-    media: { type: "image", src: "/assets/image1.png", alt: "CYBERVERSE cover" },
+    mediaPos: "right",
+    media: { type: "image", src: "/assets/image8.png", alt: "CYBERVERSE cover" },
     stage: {
       cameraPos: [0.2, 1.35, 5.2],
       cameraTarget: [0, 1.1, 0],
@@ -17,6 +18,52 @@ export const SLIDES = [
       rimLight: 1.4,
       haze: 0.18,
       panelSpread: 0.65
+    }
+  },
+  {
+    id: "problem",
+    title: "Problem: Theory without practice",
+    subtitle:
+      "Kenya's digital services are growing fast, and cyber threats are rising just as quickly. Most learners still lack safe, hands-on labs.",
+    bullets: [
+      "Cybersecurity education is often PowerPoints and memorization",
+      "Cyber-ranges are expensive to set up and hard to maintain",
+      "Shortage of trained instructors limits practical training",
+      "User story: Kevin (3rd-year ICT student, Nairobi) learns theory only - no safe lab to practice",
+      "Kevin clicks a WhatsApp \"Safaricom bundles\" link, gets compromised, and is told: \"Be more careful next time.\"",
+      "CYBERVERSE closes this gap with a safe environment to test, fail, learn, and improve"
+    ],
+    mediaPos: "right",
+    media: { type: "image", src: "/assets/image2.png", alt: "Learners need practical cybersecurity training" },
+    stage: {
+      cameraPos: [-0.15, 1.45, 4.95],
+      cameraTarget: [0.05, 1.05, 0],
+      keyLight: 2.8,
+      rimLight: 1.9,
+      haze: 0.28,
+      panelSpread: 0.85
+    }
+  },
+  {
+    id: "solution",
+    title: "Solution: CYBERVERSE",
+    subtitle:
+      "A gamified, AI-guided 3D cyber-lab where learners practice real scenarios safely - built for the Kenyan digital ecosystem.",
+    bullets: [
+      "Interactive Unity environment with missions (phishing, passwords, device hardening, incident response)",
+      "NURU AI mentors learners step-by-step with contextual hints and feedback",
+      "Multiplayer collaboration for team-based challenges",
+      "Localized content for Kenya (mobile money, schools, public services)"
+    ],
+    mediaPos: "right",
+    media: { type: "image", src: "/assets/image5.png", alt: "CYBERVERSE cyber-lab missions" },
+    stage: {
+      cameraPos: [0.35, 1.25, 4.35],
+      cameraTarget: [0, 1.02, 0],
+      keyLight: 1.8,
+      rimLight: 2.6,
+      haze: 0.34,
+      panelSpread: 0.7
     }
   },
   {
@@ -28,6 +75,7 @@ export const SLIDES = [
       "AI analyzes behavior during missions",
       "Learning is reinforced through experience - not slides"
     ],
+    mediaPos: "right",
     media: { type: "image", src: "/assets/image2.png", alt: "Simulation overview" },
     stage: {
       cameraPos: [-0.8, 1.55, 4.4],
@@ -48,6 +96,7 @@ export const SLIDES = [
       "Detects risky behavior and provides contextual hints",
       "Generates end-of-mission performance breakdowns"
     ],
+    mediaPos: "right",
     media: { type: "image", src: "/assets/image6.png", alt: "NURU AI" },
     stage: {
       cameraPos: [1.1, 1.35, 4.7],
@@ -69,6 +118,7 @@ export const SLIDES = [
       "Simulated account compromise events",
       "Decision-making under pressure"
     ],
+    mediaPos: "right",
     media: { type: "image", src: "/assets/image5.png", alt: "Training missions" },
     stage: {
       cameraPos: [0, 1.15, 3.7],
@@ -91,6 +141,7 @@ export const SLIDES = [
       "Roadmap: advanced threats, instructor dashboard, web/mobile"
     ],
     cta: { label: "GitHub Repo", href: "https://github.com/rayfrank/CyberVerseOnline" },
+    mediaPos: "right",
     media: { type: "image", src: "/assets/image2.png", alt: "Architecture and roadmap" },
     stage: {
       cameraPos: [0.9, 1.2, 4.0],
@@ -111,7 +162,7 @@ export const SLIDES = [
       type: "ai_click",
       todayTitle: "This is what AI chatting looks like today",
       todaySubtitle: "",
-      todayImage: "/assets/image3.png",
+      todayImage: "/assets/image7.jpg",
       todayAlt: "Typical chatbot UI",
       bridgeTitle: "Now I'm going to show you what they are going to look like tomorrow...",
       bridgeSubtitle: "This is",
@@ -129,4 +180,3 @@ export const SLIDES = [
     }
   }
 ];
-

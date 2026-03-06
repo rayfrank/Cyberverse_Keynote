@@ -11,8 +11,22 @@ const slideIndexEl = document.getElementById("slideIndex");
 const slideTotalEl = document.getElementById("slideTotal");
 const ctaEl = document.getElementById("cta");
 
-function applyLayout(slide) {
+function applyLayout(slide, index1Based) {
   document.body.classList.toggle("layout-center", slide?.layout === "center");
+  const side = slide?.mediaPos === "left" ? "left" : "right";
+  document.body.classList.toggle("media-left", side === "left");
+  document.body.classList.toggle("media-right", side === "right");
+  const shiftY = typeof slide?.mediaShiftY === "number" ? slide.mediaShiftY : 0;
+  const shiftXRaw = typeof slide?.mediaShiftX === "number" ? slide.mediaShiftX : 0;
+  const rotateRaw = typeof slide?.mediaRotateDeg === "number" ? slide.mediaRotateDeg : 0;
+  const scale = typeof slide?.mediaScale === "number" ? slide.mediaScale : 1;
+  const sign = side === "left" ? -1 : 1;
+  const shiftX = shiftXRaw * sign;
+  const rotate = rotateRaw * sign;
+  document.documentElement.style.setProperty("--media-shift-y", `${shiftY}px`);
+  document.documentElement.style.setProperty("--media-shift-x", `${shiftX}px`);
+  document.documentElement.style.setProperty("--media-rotate", `${rotate}deg`);
+  document.documentElement.style.setProperty("--media-scale", `${scale}`);
 }
 
 function setFade(out) {
@@ -48,15 +62,19 @@ function setSubtitle(text) {
 
 function setBullets(lines) {
   bulletsEl.innerHTML = "";
+  let i = 0;
   for (const line of lines ?? []) {
     const li = document.createElement("li");
     li.textContent = line;
+    li.style.setProperty("--d", `${i * 70}ms`);
     bulletsEl.appendChild(li);
+    i += 1;
   }
 }
 
 function showImage(src, alt) {
   mediaWrapEl.classList.add("show");
+  imageEl.dataset.fallbackStep = "0";
   imageEl.src = src;
   imageEl.alt = alt ?? "";
   imageEl.style.display = "block";
@@ -85,12 +103,88 @@ function setTitleChars(text) {
 
 export function initUI(totalSlides) {
   slideTotalEl.textContent = `/${totalSlides}`;
+  initMediaTilt();
+  initImageFallback();
+}
+
+function initImageFallback() {
+  imageEl.addEventListener(
+    "error",
+    () => {
+      const current = imageEl.getAttribute("src") ?? "";
+      const step = Number(imageEl.dataset.fallbackStep ?? "0");
+      if (step > 2) return;
+
+      // Try a couple of sensible fallbacks, then land on a known-good asset.
+      if (step === 0 && /\/assets\/image8\.png(\?|$)/.test(current)) {
+        imageEl.dataset.fallbackStep = "1";
+        imageEl.src = "/assets/image8.jpg";
+        return;
+      }
+
+      imageEl.dataset.fallbackStep = "2";
+      imageEl.src = "/assets/image1.png";
+    },
+    { passive: true }
+  );
+}
+
+function initMediaTilt() {
+  let raf = 0;
+  let lastX = 0;
+  let lastY = 0;
+
+  function apply() {
+    raf = 0;
+    if (!mediaWrapEl.classList.contains("show")) return;
+    const x = Math.max(-1, Math.min(1, lastX));
+    const y = Math.max(-1, Math.min(1, lastY));
+
+    const tiltY = (-10 + x * 7).toFixed(2);
+    const tiltX = (6 + -y * 5).toFixed(2);
+    const tiltZ = (-0.8 + x * 0.35).toFixed(2);
+
+    mediaWrapEl.style.setProperty("--media-tilt-x", `${tiltX}deg`);
+    mediaWrapEl.style.setProperty("--media-tilt-y", `${tiltY}deg`);
+    mediaWrapEl.style.setProperty("--media-tilt-z", `${tiltZ}deg`);
+    mediaWrapEl.style.setProperty("--media-glow-x", `${(55 + x * 14).toFixed(2)}%`);
+    mediaWrapEl.style.setProperty("--media-glow-y", `${(35 + y * 10).toFixed(2)}%`);
+  }
+
+  function onMove(ev) {
+    if (!mediaWrapEl.classList.contains("show")) return;
+    const rect = mediaWrapEl.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    lastX = (ev.clientX - cx) / (rect.width / 2);
+    lastY = (ev.clientY - cy) / (rect.height / 2);
+    if (raf) return;
+    raf = requestAnimationFrame(apply);
+  }
+
+  function reset() {
+    lastX = 0;
+    lastY = 0;
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      mediaWrapEl.style.removeProperty("--media-tilt-x");
+      mediaWrapEl.style.removeProperty("--media-tilt-y");
+      mediaWrapEl.style.removeProperty("--media-tilt-z");
+      mediaWrapEl.style.removeProperty("--media-glow-x");
+      mediaWrapEl.style.removeProperty("--media-glow-y");
+    });
+  }
+
+  window.addEventListener("pointermove", onMove, { passive: true });
+  mediaWrapEl.addEventListener("pointerleave", reset, { passive: true });
 }
 
 export async function renderSlide(slide, index1Based) {
-  applyLayout(slide);
+  applyLayout(slide, index1Based);
   setFade(true);
-  await new Promise((r) => setTimeout(r, 170));
+  await new Promise((r) => setTimeout(r, 320));
 
   // For sequence slides, we render an initial static state; progression happens only on user input.
   if (slide?.sequence?.type) {
@@ -126,12 +220,34 @@ export async function renderSlide(slide, index1Based) {
 }
 
 function crossFade(fn, opts = {}) {
-  const durationOut = typeof opts.out === "number" ? opts.out : 0.22;
-  const durationIn = typeof opts.in === "number" ? opts.in : 0.26;
+  const durationOut = typeof opts.out === "number" ? opts.out : 0.38;
+  const durationIn = typeof opts.in === "number" ? opts.in : 0.44;
   const tl = gsap.timeline();
-  tl.to([textEl, mediaWrapEl], { opacity: 0, y: 10, duration: durationOut, ease: "power2.inOut" }, 0);
+  tl.to(
+    [textEl, mediaWrapEl],
+    {
+      opacity: 0,
+      duration: durationOut,
+      ease: "power2.inOut",
+      "--enter-y": "26px",
+      "--enter-scale": 0.985,
+      "--enter-blur": "8px"
+    },
+    0
+  );
   tl.call(fn);
-  tl.to([textEl, mediaWrapEl], { opacity: 1, y: 0, duration: durationIn, ease: "power2.out" }, 0.02);
+  tl.to(
+    [textEl, mediaWrapEl],
+    {
+      opacity: 1,
+      duration: durationIn,
+      ease: "power2.out",
+      "--enter-y": "0px",
+      "--enter-scale": 1,
+      "--enter-blur": "0px"
+    },
+    0.02
+  );
   return tl;
 }
 
@@ -163,17 +279,17 @@ function renderAiClickStep(cfg, stepIndex, animate) {
     return null;
   }
 
-  if (stepIndex === 2) {
-    setSubtitle("");
-    setTitleChars(nuruText);
-    if (!animate) return null;
-    const chars = titleEl.querySelectorAll(".char");
-    return gsap.fromTo(
-      chars,
-      { opacity: 0, y: 28, scale: 0.985 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.28, stagger: 0.12, ease: "power3.out" }
-    );
-  }
+    if (stepIndex === 2) {
+      setSubtitle("");
+      setTitleChars(nuruText);
+      if (!animate) return null;
+      const chars = titleEl.querySelectorAll(".char");
+      return gsap.fromTo(
+        chars,
+        { opacity: 0, y: 28, scale: 0.985 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.55, stagger: 0.18, ease: "power3.out" }
+      );
+    }
 
   if (stepIndex === 3) {
     setTitlePlain(nuruText);
